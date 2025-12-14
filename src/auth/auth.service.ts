@@ -21,7 +21,7 @@ export class AuthService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
-    const { email, password } = registerDto;
+    const { email, password, birthdate } = registerDto;
 
     // Check if user already exists
     const existingUser = await this.userModel.findOne({ email });
@@ -38,6 +38,7 @@ export class AuthService {
       const newUser = new this.userModel({
         email,
         password: hashedPassword,
+        birthdate: birthdate ? new Date(birthdate) : undefined,
         recentlyViewed: [],
       });
 
@@ -212,10 +213,24 @@ export class AuthService {
   }
 
   private sanitizeUser(user: UserDocument): UserResponseDto {
+    // Calculate age from birthdate
+    let age: number | null = null;
+    if (user.birthdate) {
+      const today = new Date();
+      const birthDate = new Date(user.birthdate);
+      age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+    }
+
     return {
       id: user._id.toString(),
       email: user.email,
       createdAt: user.createdAt,
+      birthdate: user.birthdate,
+      age,
       recentlyViewed: user.recentlyViewed || [],
       wishlist: user.wishlist?.map((item) => item.entryUid) || [],
       downloads: user.downloads?.map((item) => item.entryUid) || [],

@@ -27,6 +27,9 @@ export class User {
   @Prop({ required: true })
   password: string;
 
+  @Prop({ type: Date })
+  birthdate?: Date;
+
   @Prop({ default: [] })
   recentlyViewed: RecentlyViewedGame[];
 
@@ -43,5 +46,18 @@ export class User {
   updatedAt: Date;
 }
 
+// Create schema and add virtual properties
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.virtual('age').get(function(this: UserDocument) {
+  if (!this.birthdate) return null;
+  const today = new Date();
+  const birthDate = new Date(this.birthdate);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+});
 

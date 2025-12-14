@@ -3,6 +3,8 @@ export class AuthResponseDto {
     id: string;
     email: string;
     createdAt: Date;
+    birthdate?: Date;
+    age?: number | null;
     recentlyViewed?: any[];
     wishlist?: string[];
     downloads?: string[];
@@ -14,6 +16,8 @@ export class UserResponseDto {
   id: string;
   email: string;
   createdAt: Date;
+  birthdate?: Date;
+  age?: number | null;
   recentlyViewed?: any[];
   wishlist?: string[];
   downloads?: string[];
